@@ -39,7 +39,6 @@ namespace UserBlazorApp.API.Controllers
 					RoleClaims = r.AspNetRoleClaims.Select(rc => new RolClaimResponse
 					{
 						Id = rc.Id,
-						RoleId = rc.RoleId,
 						ClaimType = rc.ClaimType,
 						ClaimValue = rc.ClaimValue
 					}).ToList()
