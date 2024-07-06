@@ -1,0 +1,89 @@
+﻿﻿
+@page "/Create/Users"
+@inject IClientService<AspNetUsers> userService
+@inject NavigationManager Navigation
+
+<PageTitle>Usuario Create</PageTitle>
+<EditForm Model="Usuario" OnValidSubmit="Guardar">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header text-center">
+				<div class="bg-primary text-white">
+					<h3><strong>Crear usuario</strong></h3>
+				</div>
+			</div>
+			@*Body*@
+			<div class="card-body">
+				<div class="row">
+					<div class="col-1">
+						@*ID*@
+						<label class="form-label" for="id"><strong>Id</strong></label>
+						<InputNumber class="form-control" id="id" @bind-Value="Usuario.Id"></InputNumber>
+					</div>
+					<div class="col-3">
+						@*UserName*@
+						<label class="form-label" for="userName"><strong>UserName</strong></label>
+						<InputText class="form-control" id="userName" @bind-Value="Usuario.UserName"></InputText>
+						<ValidationMessage For="@(() => Usuario.UserName)" />
+					</div>
+					<div class="col-4">
+						@*Email*@
+						<label class="form-label" for="email"><strong>Email</strong></label>
+						<InputText class="form-control" id="email" @bind-Value="Usuario.Email"></InputText>
+						<ValidationMessage For="@(() => Usuario.Email)" />
+					</div>
+				</div>
+				<div class="row mt-2">
+					@*PasswordHash*@
+					<div class="col-3">
+						<label class="form-label" for="passwordHash"><strong>PasswordHash</strong></label>
+						<InputText class="form-control" id="passwordHash" @bind-Value="Usuario.PasswordHash"></InputText>
+					</div>
+					@*PhoneNumber*@
+					<div class="col-3">
+						<label class="form-label" for="phoneNumber"><strong>PhoneNumber</strong></label>
+						<InputText class="form-control" id="phoneNumber" @bind-Value="Usuario.PhoneNumber"></InputText>
+					</div>
+					@*LockoutEnd*@
+					<div class="col-3">
+						<label class="form-label" for="lockoutEnd"><strong>LockoutEnd</strong></label>
+						<InputDate class="form-control" id="lockoutEnd" @bind-Value="Usuario.LockoutEnd"></InputDate>
+					</div>
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer text-center">
+				<button type="button" class="btn btn-outline-secondary ms-2" @onclick="()=>Volver()"> Volver</button>
+				<button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+@Mensaje
+
+@code {
+	public AspNetUsers Usuario { get; set; } = new AspNetUsers();
+	public string Mensaje { get; set; } = string.Empty;
+
+	public async Task Guardar()
+	{
+		var result = await userService.AddAsync(Usuario);
+
+		if (result != null)
+		{
+			Mensaje = "Usuario creado correctamente";
+			Usuario = new AspNetUsers();
+		}
+
+		else
+			Mensaje = "Error al crear el usuario";
+	}
+
+	public void Volver()
+	{
+		Navigation.NavigateTo("/Index/Users");
+	}
+}
