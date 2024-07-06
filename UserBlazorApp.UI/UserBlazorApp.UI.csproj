@@ -17,4 +17,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UsersBlazorApp.Data\UsersBlazorApp.Data.csproj" />
+  </ItemGroup>
+
 </Project>

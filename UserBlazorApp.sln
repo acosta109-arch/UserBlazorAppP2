@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersBlazorApp.Data", "UsersBlazorApp.Data\UsersBlazorApp.Data.csproj", "{E5E32F16-0E60-4220-AC08-CB620A74D2F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsersBlazorApp.Data", "UsersBlazorApp.Data\UsersBlazorApp.Data.csproj", "{E5E32F16-0E60-4220-AC08-CB620A74D2F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserBlazorApp.UI", "UserBlazorApp.UI\UserBlazorApp.UI.csproj", "{DB076C84-BB7E-4451-AE0F-2844558DA249}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserBlazorApp.UI", "UserBlazorApp.UI\UserBlazorApp.UI.csproj", "{DB076C84-BB7E-4451-AE0F-2844558DA249}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserBlazorApp.API", "UserBlazorApp.API\UserBlazorApp.API.csproj", "{26790B62-3708-46D7-B548-50099F02B076}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserBlazorApp.API", "UserBlazorApp.API\UserBlazorApp.API.csproj", "{26790B62-3708-46D7-B548-50099F02B076}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

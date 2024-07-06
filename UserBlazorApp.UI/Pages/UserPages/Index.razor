@@ -1,0 +1,134 @@
+﻿@page "/Index/Users"
+@inject NavigationManager Navigation
+@inject IClientService<AspNetUsers> userService
+
+<PageTitle>Users</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header bg-secondary text-white">
+            <h1><strong>Users</strong></h1>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="Filtro" class="form-label"><strong>Filtrar por:</strong></label>
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">UserId</option>
+                        <option value="nombre">Nombre de Usuario</option>
+                        <option value="email">Email</option>
+                        <option value="telefono">Teléfono</option>
+                        <option value="passwordhash">PasswordHash</option>
+                        <option value="lockoutend">LockoutEnd</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="ValorFiltro" class="form-label"><strong>Búsqueda: </strong></label>
+                    <div class="input-group">
+                        <input @bind="valorFiltro" id="ValorFiltro" class="form-control" placeholder="Buscar" />
+                        <button type="button" class="btn btn-primary bi bi-search" @onclick="Buscar"> Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a href="/Create/Users" class="btn btn-success bi bi-plus-circle-fill"> Nuevo</a>
+        </div>
+        <div class="card-body">
+            <table class="table table-light">
+                <thead>
+                    <tr>
+                        <th>UserId</th>
+                        <th>Nombre de Usuario</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>PasswordHash</th>
+                        <th>LockoutEnd</th>
+                        <th>Detalles</th>
+                        <th>Modificar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in filtrados)
+                    {
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>@user.PhoneNumber</td>
+                            <td>@user.PasswordHash</td>
+                            <td>@user.LockoutEnd</td>
+                            <td class="text-center">
+                                <a href="/Details/Users/@user.Id" class="btn btn-warning bi bi-eye-fill"> Detalles</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Edit/Users/@user.Id" class="btn btn-primary bi bi-pen-fill"> Modificar</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Delete/Users/@user.Id" class="btn btn-danger bi bi-trash-fill"> Eliminar</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<AspNetUsers> users { get; set; } = new List<AspNetUsers>();
+    public List<AspNetUsers> filtrados { get; set; } = new List<AspNetUsers>();
+    public string filtro { get; set; } = "id";
+    public string valorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            users = await userService.GetAllAsync();
+            filtrados = users;
+        }
+        catch (Exception ex)
+        {
+            // Manejo de errores, puedes mostrar un mensaje al usuario
+            Console.WriteLine($"Error al cargar los datos: {ex.Message}");
+        }
+    }
+
+    private void Buscar()
+    {
+        if (string.IsNullOrEmpty(valorFiltro))
+        {
+            filtrados = users;
+        }
+        else
+        {
+            switch (filtro)
+            {
+                case "id":
+                    if (int.TryParse(valorFiltro, out int id))
+                    {
+                        filtrados = users.Where(a => a.Id == id).ToList();
+                    }
+                    else
+                    {
+                        filtrados = new List<AspNetUsers>();
+                    }
+                    break;
+                case "nombre":
+                    filtrados = users.Where(a => a.UserName.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+                    break;
+                case "email":
+                    filtrados = users.Where(a => a.Email.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+                    break;
+                case "telefono":
+                    filtrados = users.Where(a => a.PhoneNumber.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+                    break;
+                case "passwordhash":
+                    filtrados = users.Where(a => a.PasswordHash.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+                    break;
+                case "lockoutend":
+                    filtrados = users.Where(a => a.LockoutEnd.HasValue && a.LockoutEnd.Value.ToString().Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+                    break;
+            }
+        }
+    }
+}
