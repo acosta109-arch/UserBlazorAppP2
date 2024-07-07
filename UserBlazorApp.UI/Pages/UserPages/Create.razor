@@ -3,7 +3,7 @@
 @inject IClientService<AspNetRoles> roleService
 @inject NavigationManager Navigation
 
-<PageTitle>Usuario Create</PageTitle>
+<PageTitle>Crear nuevo usuario</PageTitle>
 
 <EditForm Model="Usuario" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
@@ -12,7 +12,7 @@
             <!-- Header -->
             <div class="card-header text-center">
                 <div class="bg-primary text-white">
-                    <h3><strong>Crear usuario</strong></h3>
+                    <h3><strong>Crear nuevo usuario</strong></h3>
                 </div>
             </div>
 
@@ -62,7 +62,7 @@
                         </InputSelect>
                     </div>
                     <div class="col-2">
-                        <button class="btn btn-success mt-4" @onclick="AgregarRol">Agregar</button>
+                        <button class="btn btn-success mt-4 bi bi-plus-circle-fill" type="button" @onclick="AgregarRol">  Agregar</button>
                     </div>
                 </div>
 
@@ -75,12 +75,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var role in Usuario.Roles)
+                        @foreach (var role in SelectedRoles)
                         {
                             <tr>
                                 <td>@role.Name</td>
                                 <td>
-                                    <button class="btn btn-danger" @onclick="() => EliminarRol(role)">Eliminar</button>
+                                    <button class="btn btn-danger bi bi-trash-fill" type="button" @onclick="() => EliminarRol(role)">  Eliminar</button>
                                 </td>
                             </tr>
                         }
@@ -90,8 +90,8 @@
 
             <!-- Footer -->
             <div class="card-footer text-center">
-                <button type="button" class="btn btn-outline-secondary ms-2" @onclick="Volver"> Volver</button>
-                <button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
+                <button type="button" class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+                <button type="submit" class="btn btn-primary ms-2 bi bi-floppy-fill">  Guardar</button>
             </div>
         </div>
         @Mensaje
@@ -101,6 +101,7 @@
 @code {
     public AspNetUsers Usuario { get; set; } = new AspNetUsers();
     public List<AspNetRoles> ListaRoles { get; set; } = new List<AspNetRoles>();
+    public List<AspNetRoles> SelectedRoles { get; set; } = new List<AspNetRoles>();
     public int selectedRole { get; set; }
     public string Mensaje { get; set; }
 
@@ -111,12 +112,14 @@
 
     public async Task Guardar()
     {
+        Usuario.Roles = SelectedRoles;
         var result = await userService.AddAsync(Usuario);
 
         if (result != null)
         {
             Mensaje = "Usuario creado correctamente";
             Usuario = new AspNetUsers();
+            SelectedRoles = new List<AspNetRoles>();
         }
         else
         {
@@ -132,14 +135,14 @@
     public void AgregarRol()
     {
         var rol = ListaRoles.FirstOrDefault(r => r.Id == selectedRole);
-        if (rol != null && !Usuario.Roles.Contains(rol))
+        if (rol != null && !SelectedRoles.Contains(rol))
         {
-            Usuario.Roles.Add(rol);
+            SelectedRoles.Add(rol);
         }
     }
 
     public void EliminarRol(AspNetRoles role)
     {
-        Usuario.Roles.Remove(role);
+        SelectedRoles.Remove(role);
     }
 }
