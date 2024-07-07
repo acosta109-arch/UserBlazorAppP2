@@ -1,30 +1,32 @@
-﻿@page "/Edit/Roles/{roleId:int}"
-@inject IClientService<AspNetRoles> rolService
+﻿@page "/Edit/Roles/{id:int}"
+@inject IClientService<AspNetRoles> roleService
 @inject IClientService<AspNetRoleClaims> roleClaimService
 @inject NavigationManager Navigation
 
-<PageTitle>Edit Role</PageTitle>
+<PageTitle>Modificar rol</PageTitle>
+
 <EditForm Model="Rol" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="container">
         <div class="card shadow-lg">
-            @*Header*@
+            <!-- Header -->
             <div class="card-header text-center">
                 <div class="bg-primary text-white">
-                    <h3><strong>Editar Rol</strong></h3>
+                    <h3><strong>Modificar rol</strong></h3>
                 </div>
             </div>
-            @*Body*@
+
+            <!-- Body -->
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
-                        @*Role Name*@
+                        <!-- Role Name -->
                         <label class="form-label" for="name"><strong>Nombre del Rol</strong></label>
                         <InputText class="form-control" id="name" @bind-Value="Rol.Name"></InputText>
                         <ValidationMessage For="@(() => Rol.Name)" />
                     </div>
                 </div>
-                @*Claims*@
+                <!-- Claims -->
                 <div class="row mt-3">
                     <div class="col-4">
                         <label class="form-label"><strong>Claim Type</strong></label>
@@ -35,9 +37,10 @@
                         <InputText class="form-control" @bind-Value="claimValueSeleccionado"></InputText>
                     </div>
                     <div class="col-4">
-                        <button type="button" class="btn btn-success mt-4" @onclick="agregarClaim">Agregar Claim</button>
+                        <button type="button" class="btn btn-success mt-4 bi bi-plus-circle-fill" @onclick="AgregarClaim">  Agregar Claim</button>
                     </div>
                 </div>
+                <!-- Lista de Claims seleccionados -->
                 <table class="table table-bordered mt-3">
                     <thead>
                         <tr>
@@ -53,56 +56,55 @@
                                 <td>@claim.ClaimType</td>
                                 <td>@claim.ClaimValue</td>
                                 <td>
-                                    <button class="btn btn-danger" @onclick="() => eliminarClaim(claim)">Eliminar</button>
+                                    <button class="btn btn-danger bi bi-trash-fill" type="button" @onclick="() => EliminarClaim(claim)">  Eliminar</button>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
-            @*Footer*@
+
+            <!-- Footer -->
             <div class="card-footer text-center">
-                <button type="button" class="btn btn-outline-secondary ms-2" @onclick="Volver">Volver</button>
-                <button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
+                <button type="button" class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+                <button type="submit" class="btn btn-primary ms-2 bi bi-floppy-fill">  Guardar</button>
             </div>
         </div>
+        @Mensaje
     </div>
 </EditForm>
 
-@Mensaje
-
 @code {
     [Parameter]
-    public int roleId { get; set; }
-
+    public int Id { get; set; }
     public AspNetRoles Rol { get; set; } = new AspNetRoles();
-    public string Mensaje { get; set; } = string.Empty;
     public List<AspNetRoleClaims> ListaClaims { get; set; } = new List<AspNetRoleClaims>();
-
-    public string claimTypeSeleccionado = "";
-    public string claimValueSeleccionado = "";
+    public string claimTypeSeleccionado { get; set; } = "";
+    public string claimValueSeleccionado { get; set; } = "";
+    public string Mensaje { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Rol = await rolService.GetByIdAsync(roleId);
+        Rol = await roleService.GetByIdAsync(Id);
         ListaClaims = await roleClaimService.GetAllAsync();
         // Filtrar las reclamaciones asociadas al rol específico
-        ListaClaims = ListaClaims.Where(c => c.RoleId == roleId).ToList();
+        ListaClaims = ListaClaims.Where(c => c.RoleId == Id).ToList();
     }
 
     public async Task Guardar()
     {
-        var result = await rolService.UpdateAsync(Rol);
+        var result = await roleService.UpdateAsync(Rol);
 
-        if (result)
+        if (result != null)
         {
+            // Guardar las reclamaciones asociadas al rol
             foreach (var claim in ListaClaims)
             {
                 claim.RoleId = Rol.Id;
                 await roleClaimService.UpdateAsync(claim);
             }
-
             Mensaje = "Rol actualizado correctamente";
+            Navigation.NavigateTo("/Index/Roles");
         }
         else
         {
@@ -110,32 +112,29 @@
         }
     }
 
-    public void agregarClaim()
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Index/Roles");
+    }
+
+    public void AgregarClaim()
     {
         if (!string.IsNullOrEmpty(claimTypeSeleccionado) && !string.IsNullOrEmpty(claimValueSeleccionado))
         {
             ListaClaims.Add(new AspNetRoleClaims
                 {
                     ClaimType = claimTypeSeleccionado,
-                    ClaimValue = claimValueSeleccionado
+                    ClaimValue = claimValueSeleccionado,
+                    RoleId = Rol.Id
                 });
 
             claimTypeSeleccionado = "";
             claimValueSeleccionado = "";
         }
-        else
-        {
-            Mensaje = "Debe ingresar un Claim Type y Claim Value!";
-        }
     }
 
-    public void eliminarClaim(AspNetRoleClaims claim)
+    public void EliminarClaim(AspNetRoleClaims claim)
     {
         ListaClaims.Remove(claim);
-    }
-
-    public void Volver()
-    {
-        Navigation.NavigateTo("/Index/Roles");
     }
 }
