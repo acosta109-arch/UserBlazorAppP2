@@ -1,0 +1,98 @@
+﻿@page "/Delete/Users/{id:int}"
+@inject IClientService<AspNetUsers> userService
+@inject NavigationManager Navigation
+
+<PageTitle>Eliminar Usuario</PageTitle>
+
+@if (Usuario == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="card shadow-lg">
+            <!-- Header -->
+            <div class="card-header text-center">
+                <div class="bg-danger text-white">
+                    <h3><strong>Eliminar usuario</strong></h3>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <!-- UserName -->
+                        <label class="form-label"><strong>UserName</strong></label>
+                        <p>@Usuario.UserName</p>
+                    </div>
+                    <div class="col-6">
+                        <!-- Email -->
+                        <label class="form-label"><strong>Email</strong></label>
+                        <p>@Usuario.Email</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <!-- PasswordHash -->
+                        <label class="form-label"><strong>PasswordHash</strong></label>
+                        <p>@Usuario.PasswordHash</p>
+                    </div>
+                    <div class="col-6">
+                        <!-- PhoneNumber -->
+                        <label class="form-label"><strong>PhoneNumber</strong></label>
+                        <p>@Usuario.PhoneNumber</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <!-- LockoutEnd -->
+                        <label class="form-label"><strong>LockoutEnd</strong></label>
+                        <p>@Usuario.LockoutEnd?.ToString("yyyy-MM-dd")</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer text-center">
+                <button class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+                <button class="btn btn-danger ms-2 bi bi-trash-fill" @onclick="Eliminar">  Eliminar</button>
+            </div>
+        </div>
+        @Mensaje
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public AspNetUsers Usuario { get; set; } = new AspNetUsers();
+    public string Mensaje { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Usuario = await userService.GetByIdAsync(Id);
+    }
+
+    public async Task Eliminar()
+    {
+        var result = await userService.DeleteAsync(Id);
+
+        if (result)
+        {
+            Mensaje = "Usuario eliminado correctamente";
+            Navigation.NavigateTo("/Index/Users");
+        }
+        else
+        {
+            Mensaje = "Error al eliminar el usuario";
+        }
+    }
+
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Index/Users");
+    }
+}
+
