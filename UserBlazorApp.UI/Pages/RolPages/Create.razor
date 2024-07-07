@@ -3,7 +3,7 @@
 @inject IClientService<AspNetRoleClaims> roleClaimService
 @inject NavigationManager Navigation
 
-<PageTitle>Roles Create</PageTitle>
+<PageTitle>Crear nuevo rol</PageTitle>
 <EditForm Model="Rol" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="container">
@@ -11,7 +11,7 @@
             @*Header*@
             <div class="card-header text-center">
                 <div class="bg-primary text-white">
-                    <h3><strong>Crear Rol</strong></h3>
+                    <h3><strong>Crear nuevo rol</strong></h3>
                 </div>
             </div>
             @*Body*@
@@ -35,7 +35,7 @@
                         <InputText class="form-control" @bind-Value="claimValueSeleccionado"></InputText>
                     </div>
                     <div class="col-4">
-                        <button type="button" class="btn btn-success mt-4" @onclick="agregarClaim">Agregar Claim</button>
+                        <button type="button" class="btn btn-success mt-4 bi bi-plus-circle-fill" @onclick="agregarClaim">  Agregar Claim</button>
                     </div>
                 </div>
                 <table class="table table-bordered mt-3">
@@ -53,7 +53,7 @@
                                 <td>@claim.ClaimType</td>
                                 <td>@claim.ClaimValue</td>
                                 <td>
-                                    <button class="btn btn-danger" @onclick="() => eliminarClaim(claim)">Eliminar</button>
+                                    <button class="btn btn-danger bi bi-trash-fill" @onclick="() => eliminarClaim(claim)">  Eliminar</button>
                                 </td>
                             </tr>
                         }
@@ -62,8 +62,8 @@
             </div>
             @*Footer*@
             <div class="card-footer text-center">
-                <button type="button" class="btn btn-outline-secondary ms-2" @onclick="Volver">Volver</button>
-                <button type="submit" class="btn btn-outline-primary ms-2">Guardar</button>
+                <button type="button" class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+                <button type="submit" class="btn btn-primary ms-2 bi bi-floppy-fill">  Guardar</button>
             </div>
         </div>
     </div>
