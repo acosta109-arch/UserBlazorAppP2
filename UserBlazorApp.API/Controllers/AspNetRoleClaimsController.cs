@@ -51,7 +51,7 @@ namespace UserBlazorApp.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from the database: {ex.Message}");
             }
         }
-
+         
         // PUT: api/AspNetRoleClaims/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAspNetRoleClaims(int id, AspNetRoleClaims aspNetRoleClaims)
