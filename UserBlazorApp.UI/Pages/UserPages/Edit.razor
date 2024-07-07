@@ -1,0 +1,151 @@
+﻿@page "/Edit/Users/{id:int}"
+@inject IClientService<AspNetUsers> userService
+@inject IClientService<AspNetRoles> roleService
+@inject NavigationManager Navigation
+
+<PageTitle>Modificar Usuario</PageTitle>
+
+<EditForm Model="Usuario" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <!-- Header -->
+            <div class="card-header text-center">
+                <div class="bg-primary text-white">
+                    <h3><strong>Modificar usuario</strong></h3>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <!-- UserName -->
+                        <label class="form-label"><strong>UserName</strong></label>
+                        <InputText class="form-control" @bind-Value="Usuario.UserName"></InputText>
+                        <ValidationMessage For="@(() => Usuario.UserName)" />
+                    </div>
+                    <div class="col-4">
+                        <!-- Email -->
+                        <label class="form-label"><strong>Email</strong></label>
+                        <InputText class="form-control" @bind-Value="Usuario.Email"></InputText>
+                        <ValidationMessage For="@(() => Usuario.Email)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-4">
+                        <!-- PasswordHash -->
+                        <label class="form-label"><strong>PasswordHash</strong></label>
+                        <InputText class="form-control" @bind-Value="Usuario.PasswordHash"></InputText>
+                    </div>
+                    <div class="col-4">
+                        <!-- PhoneNumber -->
+                        <label class="form-label"><strong>PhoneNumber</strong></label>
+                        <InputText class="form-control" @bind-Value="Usuario.PhoneNumber"></InputText>
+                    </div>
+                    <div class="col-4">
+                        <!-- LockoutEnd -->
+                        <label class="form-label"><strong>LockoutEnd</strong></label>
+                        <InputDate class="form-control" @bind-Value="Usuario.LockoutEnd"></InputDate>
+                    </div>
+                </div>
+
+                <!-- Roles -->
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <label class="form-label"><strong>Roles</strong></label>
+                        <InputSelect class="form-control" @bind-Value="selectedRole">
+                            @foreach (var role in ListaRoles)
+                            {
+                                <option value="@role.Id">@role.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-success mt-4 bi bi-plus-circle-fill" type="button" @onclick="AgregarRol">  Agregar</button>
+                    </div>
+                </div>
+
+                <!-- Lista de Roles seleccionados -->
+                <table class="table table-bordered mt-3">
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in RolesSeleccionados)
+                        {
+                            <tr>
+                                <td>@role.Name</td>
+                                <td>
+                                    <button class="btn btn-danger bi bi-trash-fill" type="button" @onclick="() => EliminarRol(role)">  Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+                <button type="submit" class="btn btn-primary ms-2 bi bi-floppy-fill">  Guardar</button>
+            </div>
+        </div>
+        @Mensaje
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public AspNetUsers Usuario { get; set; } = new AspNetUsers();
+    public List<AspNetRoles> ListaRoles { get; set; } = new List<AspNetRoles>();
+    public List<AspNetRoles> RolesSeleccionados { get; set; } = new List<AspNetRoles>();
+    public int selectedRole { get; set; }
+    public string Mensaje { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Usuario = await userService.GetByIdAsync(Id);
+        ListaRoles = await roleService.GetAllAsync();
+        RolesSeleccionados = Usuario.Roles.ToList();
+    }
+
+    public async Task Guardar()
+    {
+        Usuario.Roles = RolesSeleccionados;
+        var result = await userService.UpdateAsync(Usuario);
+
+        if (result != null)
+        {
+            Mensaje = "Usuario actualizado correctamente";
+            Navigation.NavigateTo("/Index/Users");
+        }
+        else
+        {
+            Mensaje = "Error al actualizar el usuario";
+        }
+    }
+
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Index/Users");
+    }
+
+    public void AgregarRol()
+    {
+        var rol = ListaRoles.FirstOrDefault(r => r.Id == selectedRole);
+        if (rol != null && !RolesSeleccionados.Contains(rol))
+        {
+            RolesSeleccionados.Add(rol);
+        }
+    }
+
+    public void EliminarRol(AspNetRoles role)
+    {
+        RolesSeleccionados.Remove(role);
+    }
+}
