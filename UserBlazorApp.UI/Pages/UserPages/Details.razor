@@ -1,0 +1,65 @@
+﻿@page "/Details/Users/{id:int}"
+@inject IClientService<AspNetUsers> userService
+@inject NavigationManager Navigation
+
+<PageTitle>Detalles del Usuario</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <!-- Header -->
+        <div class="card-header text-center">
+            <div class="bg-warning text-white">
+                <h3><strong>Detalles del Usuario</strong></h3>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-4">
+                    <label class="form-label"><strong>UserName</strong></label>
+                    <p class="form-control">@Usuario.UserName</p>
+                </div>
+                <div class="col-4">
+                    <label class="form-label"><strong>Email</strong></label>
+                    <p class="form-control">@Usuario.Email</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-4">
+                    <label class="form-label"><strong>PasswordHash</strong></label>
+                    <p class="form-control">@Usuario.PasswordHash</p>
+                </div>
+                <div class="col-4">
+                    <label class="form-label"><strong>PhoneNumber</strong></label>
+                    <p class="form-control">@Usuario.PhoneNumber</p>
+                </div>
+                <div class="col-4">
+                    <label class="form-label"><strong>LockoutEnd</strong></label>
+                    <p class="form-control">@Usuario.LockoutEnd?.ToString("yyyy-MM-dd")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer text-center">
+            <button type="button" class="btn btn-secondary bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public AspNetUsers Usuario { get; set; } = new AspNetUsers();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Usuario = await userService.GetByIdAsync(Id);
+    }
+
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Index/Users");
+    }
+}
