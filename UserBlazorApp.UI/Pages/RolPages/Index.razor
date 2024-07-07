@@ -1,0 +1,110 @@
+﻿@page "/Index/Roles"
+@inject NavigationManager Navigation
+@inject IClientService<AspNetRoles> rolService
+
+<PageTitle>Roles</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header bg-secondary text-white">
+            <h1><strong>Roles</strong></h1>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="Filtro" class="form-label"><strong>Filtrar por:</strong></label>
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">RoleId</option>
+                        <option value="nombre">Nombre</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="ValorFiltro" class="form-label"><strong>Búsqueda: </strong></label>
+                    <div class="input-group">
+                        <input @bind="valorFiltro" id="ValorFiltro" class="form-control" placeholder="Buscar" />
+                        <button type="button" class="btn btn-primary bi bi-search" @onclick="Buscar"> Buscar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <a href="/Create/Roles" class="btn btn-success bi bi-plus-circle-fill"> Nuevo</a>
+        </div>
+        <div class="card-body">
+            <table class="table table-light">
+                <thead>
+                    <tr>
+                        <th>RoleId</th>
+                        <th>Nombre</th>
+                        <th>Detalles</th>
+                        <th>Modificar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rol in filtrados)
+                    {
+                        <tr>
+                            <td>@rol.Id</td>
+                            <td>@rol.Name</td>
+                            <td class="text-center">
+                                <a href="/Details/Roles/@rol.Id" class="btn btn-warning bi bi-eye-fill"> Detalles</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Edit/Roles/@rol.Id" class="btn btn-primary bi bi-pen-fill"> Modificar</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Delete/Roles/@rol.Id" class="btn btn-danger bi bi-trash-fill"> Eliminar</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<AspNetRoles> roles { get; set; } = new List<AspNetRoles>();
+    public List<AspNetRoles> filtrados { get; set; } = new List<AspNetRoles>();
+    public string filtro { get; set; } = "id";
+    public string valorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            roles = await rolService.GetAllAsync();
+            filtrados = roles;
+        }
+        catch (Exception ex)
+        {
+            // Manejo de errores, puedes mostrar un mensaje al usuario
+            Console.WriteLine($"Error al cargar los datos: {ex.Message}");
+        }
+    }
+
+    private void Buscar()
+    {
+        if (string.IsNullOrEmpty(valorFiltro))
+        {
+            filtrados = roles;
+        }
+        else
+        {
+            switch (filtro)
+            {
+                case "id":
+                    if (int.TryParse(valorFiltro, out int id))
+                    {
+                        filtrados = roles.Where(a => a.Id == id).ToList();
+                    }
+                    else
+                    {
+                        filtrados = new List<AspNetRoles>();
+                    }
+                    break;
+                case "nombre":
+                    filtrados = roles.Where(a => a.Name.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+                    break;
+            }
+        }
+    }
+}

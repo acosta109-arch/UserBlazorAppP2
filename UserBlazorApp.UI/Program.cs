@@ -16,8 +16,10 @@ namespace UserBlazorApp.UI
 
 			builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7210/") });
 			builder.Services.AddScoped<IClientService<AspNetUsers>, UsuarioService>();
+			builder.Services.AddScoped<IClientService<AspNetRoles>, RoleService>();
+            builder.Services.AddScoped<IClientService<AspNetRoleClaims>, ClaimService>();
 
-			await builder.Build().RunAsync();
+            await builder.Build().RunAsync();
 		}
 	}
 }

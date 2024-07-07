@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using UserBlazorApp.API.DAL;
 using UserBlazorApp.API.Services;
@@ -14,17 +13,22 @@ public class Program
 		var builder = WebApplication.CreateBuilder(args);
 
 		// Add services to the container.
-
 		builder.Services.AddControllers();
-		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddSwaggerGen();
 
-		builder.Services.AddDbContext<UsersDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("ConStr")));
+		// Configure DbContext with SQL Server
+		var connectionString = builder.Configuration.GetConnectionString("ConStr");
+		builder.Services.AddDbContext<UsersDbContext>(options =>
+			options.UseSqlServer(connectionString));
 
+		// Register application services
 		builder.Services.AddScoped<IApiService<AspNetUsers>, UserService>();
+		builder.Services.AddScoped<IApiService<AspNetRoles>, RolService>();
+        builder.Services.AddScoped<IApiService<AspNetRoleClaims>, ClaimService>();
 
-		builder.Services.AddCors(options => {
+        // Configure CORS
+        builder.Services.AddCors(options => {
 			options.AddPolicy("AllowAnyOrigin",
 				builder => builder.AllowAnyOrigin() // Allow any origin
 								  .AllowAnyMethod()
@@ -40,7 +44,8 @@ public class Program
 			app.UseSwaggerUI();
 		}
 
-		app.UseCors("AllowAnyOrigin"); // Use the CORS policy
+		// Use CORS policy
+		app.UseCors("AllowAnyOrigin");
 
 		app.UseHttpsRedirection();
 
