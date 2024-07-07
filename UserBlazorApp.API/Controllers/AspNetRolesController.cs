@@ -4,105 +4,137 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UserBlazorApp.API.DAL;
+using UserBlazorApp.API.Dto.Claims;
+using UserBlazorApp.API.Dto.Roles;
+using UsersBlazorApp.Data.Interfaces;
 using UsersBlazorApp.Data.Models;
 
 namespace UserBlazorApp.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AspNetRolesController : ControllerBase
-    {
-        private readonly UsersDbContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class AspNetRolesController : ControllerBase
+	{
+		private readonly IApiService<AspNetRoles> _apiService;
 
-        public AspNetRolesController(UsersDbContext context)
-        {
-            _context = context;
-        }
+		public AspNetRolesController(IApiService<AspNetRoles> apiService)
+		{
+			_apiService = apiService;
+		}
 
-        // GET: api/AspNetRoles
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AspNetRoles>>> GetAspNetRoles()
-        {
-            return await _context.AspNetRoles.ToListAsync();
-        }
+		// GET: api/AspNetRoles
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<RolResponse>>> GetAspNetRoles()
+		{
+			var roles = await _apiService.GetAllAsync();
+			var roleResponses = roles.Select(r => new RolResponse
+			{
+				Id = r.Id,
+				Name = r.Name,
+				RoleClaims = r.AspNetRoleClaims.Select(rc => new RolClaimResponse
+				{
+					Id = rc.Id,
+					ClaimType = rc.ClaimType,
+					ClaimValue = rc.ClaimValue
+				}).ToList()
+			}).ToList();
 
-        // GET: api/AspNetRoles/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AspNetRoles>> GetAspNetRoles(int id)
-        {
-            var aspNetRoles = await _context.AspNetRoles.FindAsync(id);
+			return Ok(roleResponses);
+		}
 
-            if (aspNetRoles == null)
-            {
-                return NotFound();
-            }
+		// GET: api/AspNetRoles/5
+		[HttpGet("{id}")]
+		public async Task<ActionResult<RolResponse>> GetAspNetRoles(int id)
+		{
+			var role = await _apiService.GetByIdAsync(id);
+			if (role == null)
+			{
+				return NotFound();
+			}
 
-            return aspNetRoles;
-        }
+			var roleResponse = new RolResponse
+			{
+				Id = role.Id,
+				Name = role.Name,
+				RoleClaims = role.AspNetRoleClaims.Select(rc => new RolClaimResponse
+				{
+					Id = rc.Id,
+					ClaimType = rc.ClaimType,
+					ClaimValue = rc.ClaimValue
+				}).ToList()
+			};
 
-        // PUT: api/AspNetRoles/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAspNetRoles(int id, AspNetRoles aspNetRoles)
-        {
-            if (id != aspNetRoles.Id)
-            {
-                return BadRequest();
-            }
+			return Ok(roleResponse);
+		}
 
-            _context.Entry(aspNetRoles).State = EntityState.Modified;
+		// POST: api/AspNetRoles
+		[HttpPost]
+		public async Task<ActionResult<RolResponse>> PostAspNetRoles(RolRequest roleRequest)
+		{
+			var role = new AspNetRoles
+			{
+				Name = roleRequest.Name,
+				AspNetRoleClaims = roleRequest.AspNetRoleClaims.Select(rc => new AspNetRoleClaims
+				{
+					ClaimType = rc.ClaimType,
+					ClaimValue = rc.ClaimValue
+				}).ToList()
+			};
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AspNetRolesExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			var createdRole = await _apiService.AddAsync(role);
 
-            return NoContent();
-        }
+			var roleResponse = new RolResponse
+			{
+				Id = createdRole.Id,
+				Name = createdRole.Name,
+				RoleClaims = createdRole.AspNetRoleClaims.Select(rc => new RolClaimResponse
+				{
+					Id = rc.Id,
+					ClaimType = rc.ClaimType,
+					ClaimValue = rc.ClaimValue
+				}).ToList()
+			};
 
-        // POST: api/AspNetRoles
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<AspNetRoles>> PostAspNetRoles(AspNetRoles aspNetRoles)
-        {
-            _context.AspNetRoles.Add(aspNetRoles);
-            await _context.SaveChangesAsync();
+			return CreatedAtAction(nameof(GetAspNetRoles), new { id = createdRole.Id }, roleResponse);
+		}
 
-            return CreatedAtAction("GetAspNetRoles", new { id = aspNetRoles.Id }, aspNetRoles);
-        }
+		// PUT: api/AspNetRoles/5
+		[HttpPut("{id}")]
+		public async Task<IActionResult> PutAspNetRoles(int id, RolRequest roleRequest)
+		{
+			var role = await _apiService.GetByIdAsync(id);
+			if (role == null)
+			{
+				return NotFound();
+			}
 
-        // DELETE: api/AspNetRoles/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAspNetRoles(int id)
-        {
-            var aspNetRoles = await _context.AspNetRoles.FindAsync(id);
-            if (aspNetRoles == null)
-            {
-                return NotFound();
-            }
+			role.Name = roleRequest.Name;
+			role.AspNetRoleClaims = roleRequest.AspNetRoleClaims.Select(rc => new AspNetRoleClaims
+			{
+				ClaimType = rc.ClaimType,
+				ClaimValue = rc.ClaimValue
+			}).ToList();
 
-            _context.AspNetRoles.Remove(aspNetRoles);
-            await _context.SaveChangesAsync();
+			var result = await _apiService.UpdateAsync(role);
+			if (!result)
+			{
+				return BadRequest("Failed to update role");
+			}
 
-            return NoContent();
-        }
+			return NoContent();
+		}
 
-        private bool AspNetRolesExists(int id)
-        {
-            return _context.AspNetRoles.Any(e => e.Id == id);
-        }
-    }
+		// DELETE: api/AspNetRoles/5
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteAspNetRoles(int id)
+		{
+			var result = await _apiService.DeleteAsync(id);
+			if (!result)
+			{
+				return NotFound();
+			}
+
+			return NoContent();
+		}
+	}
 }
