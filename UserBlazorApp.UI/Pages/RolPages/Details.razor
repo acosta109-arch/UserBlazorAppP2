@@ -1,0 +1,52 @@
+﻿@page "/Details/Roles/{roleId:int}"
+@inject IClientService<AspNetRoles> roleService
+@inject NavigationManager Navigation
+
+<PageTitle>Detalles del Rol</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <!-- Header -->
+        <div class="card-header text-center">
+            <div class="bg-warning text-white">
+                <h3><strong>Detalles del Rol</strong></h3>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-4">
+                    <label class="form-label"><strong>ID del Rol</strong></label>
+                    <p class="form-control">@Rol.Id</p>
+                </div>
+                <div class="col-4">
+                    <label class="form-label"><strong>Nombre del Rol</strong></label>
+                    <p class="form-control">@Rol.Name</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer text-center">
+            <button type="button" class="btn btn-secondary bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int roleId { get; set; }
+    public AspNetRoles Rol { get; set; } = new AspNetRoles();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Rol = await roleService.GetByIdAsync(roleId);
+    }
+
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Index/Roles");
+    }
+}
+
