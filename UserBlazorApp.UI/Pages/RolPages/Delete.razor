@@ -1,0 +1,77 @@
+﻿@page "/Delete/Roles/{roleId:int}"
+@inject IClientService<AspNetRoles> roleService
+@inject NavigationManager Navigation
+
+<PageTitle>Eliminar Rol</PageTitle>
+
+@if (Rol == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="card shadow-lg">
+            <!-- Header -->
+            <div class="card-header text-center">
+                <div class="bg-danger text-white">
+                    <h3><strong>Eliminar rol</strong></h3>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <!-- ID -->
+                        <label class="form-label"><strong>ID del Rol</strong></label>
+                        <p>@Rol.Id</p>
+                    </div>
+                    <div class="col-6">
+                        <!-- Role Name -->
+                        <label class="form-label"><strong>Nombre del Rol</strong></label>
+                        <p>@Rol.Name</p>
+                    </div>
+                </div>
+                <!-- Footer -->
+                <div class="card-footer text-center">
+                    <button class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
+                    <button class="btn btn-danger ms-2 bi bi-trash-fill" @onclick="Eliminar">  Eliminar</button>
+                </div>
+            </div>
+        </div>
+        @Mensaje
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int roleId { get; set; }
+    public AspNetRoles Rol { get; set; } = new AspNetRoles();
+    public string Mensaje { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Rol = await roleService.GetByIdAsync(roleId);
+    }
+
+    public async Task Eliminar()
+    {
+        var result = await roleService.DeleteAsync(roleId);
+
+        if (result)
+        {
+            Mensaje = "Rol eliminado correctamente";
+            Navigation.NavigateTo("/Index/Roles");
+        }
+        else
+        {
+            Mensaje = "Error al eliminar el rol";
+        }
+    }
+
+    public void Volver()
+    {
+        Navigation.NavigateTo("/Index/Roles");
+    }
+}
