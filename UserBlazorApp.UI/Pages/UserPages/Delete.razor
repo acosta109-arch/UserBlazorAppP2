@@ -3,13 +3,13 @@
 @inject NavigationManager Navigation
 
 <PageTitle>Eliminar Usuario</PageTitle>
-<Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
 @if (Usuario == null)
 {
     <p><em>Cargando...</em></p>
 }
 else
 {
+    <Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
     <div class="container">
         <div class="card shadow-lg">
             @*Header*@

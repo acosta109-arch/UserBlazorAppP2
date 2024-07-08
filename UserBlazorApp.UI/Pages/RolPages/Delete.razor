@@ -3,7 +3,6 @@
 @inject NavigationManager Navigation
 
 <PageTitle>Eliminar Rol</PageTitle>
-<Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
 
 @if (Rol == null)
 {
@@ -11,6 +10,7 @@
 }
 else
 {
+    <Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
     <div class="container">
         <div class="card shadow-lg">
             @*Header*@
