@@ -12,4 +12,9 @@ public class UserResponse
 	public DateTimeOffset? LockoutEnd { get; set; }
 
 	public ICollection<RolResponse> Role { get; set; } = new List<RolResponse>();
+
+    public UserResponse()
+    {
+        Role = new List<RolResponse>(); // Se inicializa la lista en el constructor si es necesario
+    }
 }
