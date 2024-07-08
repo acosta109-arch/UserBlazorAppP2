@@ -7,16 +7,17 @@
 
 <EditForm Model="Usuario" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
+    <Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
     <div class="container">
         <div class="card shadow-lg">
-            <!-- Header -->
+            @*Header*@
             <div class="card-header text-center">
                 <div class="bg-primary text-white">
                     <h3><strong>Modificar usuario</strong></h3>
                 </div>
             </div>
 
-            <!-- Body -->
+            @*Body*@
             <div class="card-body">
                 <div class="row">
                     <div class="col-4">
@@ -88,13 +89,12 @@
                 </table>
             </div>
 
-            <!-- Footer -->
+            @*Footer*@
             <div class="card-footer text-center">
                 <button type="button" class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
                 <button type="submit" class="btn btn-primary ms-2 bi bi-floppy-fill">  Guardar</button>
             </div>
         </div>
-        @Mensaje
     </div>
 </EditForm>
 
@@ -105,7 +105,21 @@
     public List<AspNetRoles> ListaRoles { get; set; } = new List<AspNetRoles>();
     public List<AspNetRoles> RolesSeleccionados { get; set; } = new List<AspNetRoles>();
     public int selectedRole { get; set; }
-    public string Mensaje { get; set; }
+    public List<ToastMessage> MensajeToast { get; set; } = new List<ToastMessage>();
+
+    private ToastMessage CreateToastMessage(ToastType toastType, string mensaje)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Notificación",
+               HelpText = $"{DateTime.Now}",
+               Message = mensaje,
+           };
+
+    private void Mensaje(ToastType toastType, string mensaje)
+    {
+        MensajeToast.Add(CreateToastMessage(toastType, mensaje));
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,12 +135,12 @@
 
         if (result != null)
         {
-            Mensaje = "Usuario actualizado correctamente";
+            Mensaje(ToastType.Success, "Usuario actualizado correctamente.");
             Navigation.NavigateTo("/Index/Users");
         }
         else
         {
-            Mensaje = "Error al actualizar el usuario";
+            Mensaje(ToastType.Success, "Error al actualizar el usuario.");
         }
     }
 

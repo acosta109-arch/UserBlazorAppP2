@@ -7,16 +7,17 @@
 
 <EditForm Model="Rol" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
+    <Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
     <div class="container">
         <div class="card shadow-lg">
-            <!-- Header -->
+            @*Header*@
             <div class="card-header text-center">
                 <div class="bg-primary text-white">
                     <h3><strong>Modificar rol</strong></h3>
                 </div>
             </div>
 
-            <!-- Body -->
+            @*Body*@
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
@@ -64,13 +65,12 @@
                 </table>
             </div>
 
-            <!-- Footer -->
+            @*Footer*@
             <div class="card-footer text-center">
                 <button type="button" class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
                 <button type="submit" class="btn btn-primary ms-2 bi bi-floppy-fill">  Guardar</button>
             </div>
         </div>
-        @Mensaje
     </div>
 </EditForm>
 
@@ -81,13 +81,26 @@
     public List<AspNetRoleClaims> ListaClaims { get; set; } = new List<AspNetRoleClaims>();
     public string claimTypeSeleccionado { get; set; } = "";
     public string claimValueSeleccionado { get; set; } = "";
-    public string Mensaje { get; set; }
+    public List<ToastMessage> MensajeToast { get; set; } = new List<ToastMessage>();
+
+    private ToastMessage CreateToastMessage(ToastType toastType, string mensaje)
+      => new ToastMessage
+          {
+              Type = toastType,
+              Title = "Notificación",
+              HelpText = $"{DateTime.Now}",
+              Message = mensaje,
+          };
+
+    private void Mensaje(ToastType toastType, string mensaje)
+    {
+        MensajeToast.Add(CreateToastMessage(toastType, mensaje));
+    }
 
     protected override async Task OnInitializedAsync()
     {
         Rol = await roleService.GetByIdAsync(Id);
         ListaClaims = await roleClaimService.GetAllAsync();
-        // Filtrar las reclamaciones asociadas al rol específico
         ListaClaims = ListaClaims.Where(c => c.RoleId == Id).ToList();
     }
 
@@ -97,18 +110,17 @@
 
         if (result != null)
         {
-            // Guardar las reclamaciones asociadas al rol
             foreach (var claim in ListaClaims)
             {
                 claim.RoleId = Rol.Id;
                 await roleClaimService.UpdateAsync(claim);
             }
-            Mensaje = "Rol actualizado correctamente";
+            Mensaje(ToastType.Success, "Rol actualizado correctamente.");
             Navigation.NavigateTo("/Index/Roles");
         }
         else
         {
-            Mensaje = "Error al actualizar el rol";
+            Mensaje(ToastType.Danger, "Error al actualizar el rol.");
         }
     }
 

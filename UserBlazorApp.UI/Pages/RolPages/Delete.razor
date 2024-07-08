@@ -3,6 +3,7 @@
 @inject NavigationManager Navigation
 
 <PageTitle>Eliminar Rol</PageTitle>
+<Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
 
 @if (Rol == null)
 {
@@ -12,14 +13,14 @@ else
 {
     <div class="container">
         <div class="card shadow-lg">
-            <!-- Header -->
+            @*Header*@
             <div class="card-header text-center">
                 <div class="bg-danger text-white">
                     <h3><strong>Eliminar rol</strong></h3>
                 </div>
             </div>
 
-            <!-- Body -->
+            @*Body*@
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
@@ -33,14 +34,13 @@ else
                         <p>@Rol.Name</p>
                     </div>
                 </div>
-                <!-- Footer -->
+                @*Footer*@
                 <div class="card-footer text-center">
                     <button class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
                     <button class="btn btn-danger ms-2 bi bi-trash-fill" @onclick="Eliminar">  Eliminar</button>
                 </div>
             </div>
         </div>
-        @Mensaje
     </div>
 }
 
@@ -48,7 +48,21 @@ else
     [Parameter]
     public int roleId { get; set; }
     public AspNetRoles Rol { get; set; } = new AspNetRoles();
-    public string Mensaje { get; set; }
+    public List<ToastMessage> MensajeToast { get; set; } = new List<ToastMessage>();
+
+    private ToastMessage CreateToastMessage(ToastType toastType, string mensaje)
+      => new ToastMessage
+          {
+              Type = toastType,
+              Title = "Notificación",
+              HelpText = $"{DateTime.Now}",
+              Message = mensaje,
+          };
+
+    private void Mensaje(ToastType toastType, string mensaje)
+    {
+        MensajeToast.Add(CreateToastMessage(toastType, mensaje));
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,12 +75,12 @@ else
 
         if (result)
         {
-            Mensaje = "Rol eliminado correctamente";
+            Mensaje(ToastType.Success, "Rol eliminado correctamente.");
             Navigation.NavigateTo("/Index/Roles");
         }
         else
         {
-            Mensaje = "Error al eliminar el rol";
+            Mensaje(ToastType.Danger, "Error al eliminar el rol.");
         }
     }
 

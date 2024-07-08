@@ -15,9 +15,14 @@ namespace UserBlazorApp.UI
 			builder.RootComponents.Add<HeadOutlet>("head::after");
 
 			builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7210/") });
+			//inyección de users
 			builder.Services.AddScoped<IClientService<AspNetUsers>, UsuarioService>();
-			builder.Services.AddScoped<IClientService<AspNetRoles>, RoleService>();
+            //inyección de rol
+            builder.Services.AddScoped<IClientService<AspNetRoles>, RoleService>();
+            //inyección de claim
             builder.Services.AddScoped<IClientService<AspNetRoleClaims>, ClaimService>();
+            //inyección de bootstrap
+            builder.Services.AddBlazorBootstrap();
 
             await builder.Build().RunAsync();
 		}

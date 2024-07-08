@@ -6,6 +6,7 @@
 <PageTitle>Crear nuevo rol</PageTitle>
 <EditForm Model="Rol" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
+    <Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
     <div class="container">
         <div class="card shadow-lg">
             @*Header*@
@@ -69,12 +70,24 @@
     </div>
 </EditForm>
 
-@Mensaje
-
 @code {
     public AspNetRoles Rol { get; set; } = new AspNetRoles();
-    public string Mensaje { get; set; } = string.Empty;
     public List<AspNetRoleClaims> ListaClaims { get; set; } = new List<AspNetRoleClaims>();
+    public List<ToastMessage> MensajeToast { get; set; } = new List<ToastMessage>();
+
+    private ToastMessage CreateToastMessage(ToastType toastType, string mensaje)
+       => new ToastMessage
+       {
+           Type = toastType,
+           Title = "Notificación",
+           HelpText = $"{DateTime.Now}",
+           Message = mensaje,
+       };
+
+    private void Mensaje(ToastType toastType, string mensaje)
+    {
+        MensajeToast.Add(CreateToastMessage(toastType, mensaje));
+    }
 
     public string claimTypeSeleccionado = "";
     public string claimValueSeleccionado = "";
@@ -90,14 +103,13 @@
                 claim.RoleId = result.Id;
                 await roleClaimService.AddAsync(claim);
             }
-
-            Mensaje = "Rol creado correctamente";
+            Mensaje(ToastType.Success, "Rol creado correctamente.");
             Rol = new AspNetRoles();
             ListaClaims.Clear();
         }
         else
         {
-            Mensaje = "Error al crear el rol";
+            Mensaje(ToastType.Danger, "Error al crear el rol.");
         }
     }
 
@@ -116,7 +128,7 @@
         }
         else
         {
-            Mensaje = "Debe ingresar un Claim Type y Claim Value!";
+            Mensaje(ToastType.Warning, "Debe ingresar un Claim Type y Claim Value!");
         }
     }
 

@@ -3,7 +3,7 @@
 @inject NavigationManager Navigation
 
 <PageTitle>Eliminar Usuario</PageTitle>
-
+<Toasts class="p-3" Messages="MensajeToast" Placement="ToastsPlacement.TopRight" />
 @if (Usuario == null)
 {
     <p><em>Cargando...</em></p>
@@ -12,14 +12,14 @@ else
 {
     <div class="container">
         <div class="card shadow-lg">
-            <!-- Header -->
+            @*Header*@
             <div class="card-header text-center">
                 <div class="bg-danger text-white">
                     <h3><strong>Eliminar usuario</strong></h3>
                 </div>
             </div>
 
-            <!-- Body -->
+            @*Body*@
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
@@ -54,13 +54,12 @@ else
                 </div>
             </div>
 
-            <!-- Footer -->
+            @*Footer*@
             <div class="card-footer text-center">
                 <button class="btn btn-secondary ms-2 bi bi-arrow-90deg-left" @onclick="Volver">  Volver</button>
                 <button class="btn btn-danger ms-2 bi bi-trash-fill" @onclick="Eliminar">  Eliminar</button>
             </div>
         </div>
-        @Mensaje
     </div>
 }
 
@@ -68,7 +67,21 @@ else
     [Parameter]
     public int Id { get; set; }
     public AspNetUsers Usuario { get; set; } = new AspNetUsers();
-    public string Mensaje { get; set; }
+    public List<ToastMessage> MensajeToast { get; set; } = new List<ToastMessage>();
+
+    private ToastMessage CreateToastMessage(ToastType toastType, string mensaje)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Notificación",
+               HelpText = $"{DateTime.Now}",
+               Message = mensaje,
+           };
+
+    private void Mensaje(ToastType toastType, string mensaje)
+    {
+        MensajeToast.Add(CreateToastMessage(toastType, mensaje));
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,12 +94,12 @@ else
 
         if (result)
         {
-            Mensaje = "Usuario eliminado correctamente";
+            Mensaje(ToastType.Success, "Usuario eliminado correctamente.");
             Navigation.NavigateTo("/Index/Users");
         }
         else
         {
-            Mensaje = "Error al eliminar el usuario";
+            Mensaje(ToastType.Success, "Error al eliminar el usuario.");
         }
     }
 
