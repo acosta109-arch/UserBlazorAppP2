@@ -8,5 +8,4 @@ public class UserRequest
 	public string? PhoneNumber { get; set; }
 	public DateTimeOffset? LockoutEnd { get; set; }
 
-
 }
